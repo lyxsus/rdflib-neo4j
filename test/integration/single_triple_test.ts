@@ -29,7 +29,7 @@ describe('Single Triple Tests', () => {
   beforeEach(async () => {
     await cleanupDatabases(neo4j_driver);
     // Wait a bit for cleanup to complete
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 200));
     const config = new Neo4jStoreConfig(
       auth_data,
       [],
@@ -105,10 +105,9 @@ describe('Single Triple Tests', () => {
     await graph_store.add(quad);
     await graph_store.commit();
 
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const resultRdfLib = await neo4j_driver.executeQuery(GET_DATA_QUERY, { database: RDFLIB_DB });
-    const resultDefault = await neo4j_driver.executeQuery(GET_DATA_QUERY);
-    const result = resultRdfLib.records.length > 0 ? resultRdfLib : resultDefault;
+    await new Promise(resolve => setTimeout(resolve, 500));
+    // Query the default database (where the store writes)
+    const result = await neo4j_driver.executeQuery(GET_DATA_QUERY);
     // Find the record we just created
     const donnaRecord = result.records.find((r: any) => r.get('uri') === 'https://example.org/donna');
     expect(donnaRecord).toBeDefined();
@@ -128,10 +127,9 @@ describe('Single Triple Tests', () => {
     await graph_store.add(quad);
     await graph_store.commit();
 
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const resultRdfLib = await neo4j_driver.executeQuery(GET_DATA_QUERY, { database: RDFLIB_DB });
-    const resultDefault = await neo4j_driver.executeQuery(GET_DATA_QUERY);
-    const result = resultRdfLib.records.length > 0 ? resultRdfLib : resultDefault;
+    await new Promise(resolve => setTimeout(resolve, 500));
+    // Query the default database (where the store writes)
+    const result = await neo4j_driver.executeQuery(GET_DATA_QUERY);
     // Find the record we just created
     const donnaRecord = result.records.find((r: any) => r.get('uri') === 'https://example.org/donna');
     expect(donnaRecord).toBeDefined();

@@ -141,5 +141,11 @@ dist/
 *.tsbuildinfo
 *.log
 
+# Compiled test files
+test/**/*.js
+test/**/*.d.ts
+test/**/*.js.map
+test/**/*.d.ts.map
+
 # Jest
 coverage/

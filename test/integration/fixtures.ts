@@ -72,14 +72,18 @@ export async function getNeo4jDriver(): Promise<Driver> {
 
 export async function cleanupDatabases(driver: Driver): Promise<void> {
   /**Executed before each test*/
-  // Clean both databases to ensure no leftover data
+  // Clean the default database to ensure no leftover data
   try {
     await driver.executeQuery('MATCH (n) DETACH DELETE n');
+    // Wait a bit for cleanup to complete
+    await new Promise(resolve => setTimeout(resolve, 100));
   } catch (e) {
     // Ignore errors
   }
+  // Try to clean RDFLIB_DB if it exists (for Enterprise Edition)
   try {
     await driver.executeQuery('MATCH (n) DETACH DELETE n', { database: RDFLIB_DB });
+    await new Promise(resolve => setTimeout(resolve, 100));
   } catch (e) {
     // Ignore errors if database doesn't exist or isn't accessible
   }

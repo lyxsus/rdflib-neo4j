@@ -50,13 +50,11 @@ describe('Store Initialization Tests', () => {
       await graph_store.commit();
       
       // Wait a bit for the data to be committed
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise(resolve => setTimeout(resolve, 500));
     
-      // Query both databases in case rdflib isn't writable
-      const resultRdfLib = await neo4j_driver.executeQuery(GET_DATA_QUERY, { database: RDFLIB_DB });
-      const resultDefault = await neo4j_driver.executeQuery(GET_DATA_QUERY);
-      const finalResult = resultRdfLib.records.length > 0 ? resultRdfLib : resultDefault;
-      expect(finalResult.records.length).toBe(1);
+      // Query the default database (where the store writes)
+      const result = await neo4j_driver.executeQuery(GET_DATA_QUERY);
+      expect(result.records.length).toBe(1);
     } finally {
       await graph_store.close(true);
     }

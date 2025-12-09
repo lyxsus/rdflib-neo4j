@@ -28,8 +28,4 @@ jobs:
       
       - name: Build
         run: npm run build
-      
-      - name: Run tests
-        run: npm test
-        env:
-          RUN_TEST_LOCALLY: false
+

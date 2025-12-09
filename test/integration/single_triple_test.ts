@@ -40,7 +40,7 @@ describe('Single Triple Tests', () => {
     );
     // Let store create its own driver - it will use auth_data for connection
     graph_store = new Neo4jStore(config);
-    await graph_store.open(undefined, true);
+    await graph_store.open(true);
   });
 
   afterEach(async () => {

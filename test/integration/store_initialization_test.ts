@@ -40,7 +40,7 @@ describe('Store Initialization Tests', () => {
     );
 
     const graph_store = new Neo4jStore(config);
-    await graph_store.open(undefined, true);
+    await graph_store.open(true);
     
     try {
       const donna = DataFactory.namedNode('https://example.org/donna');
@@ -73,7 +73,7 @@ describe('Store Initialization Tests', () => {
     const graph_store = new Neo4jStore(config, neo4j_driver);
     // When using a driver, we need to specify the database in the session
     // For now, we'll use the default database and query it
-    await graph_store.open(undefined, true);
+    await graph_store.open(true);
     
     const donna = DataFactory.namedNode('https://example.org/donna');
     const nameLiteral = DataFactory.literal('Donna Fales');

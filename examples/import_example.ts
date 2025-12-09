@@ -41,7 +41,7 @@ async function main() {
 
   // Create the store
   const graph_store = new Neo4jStore(config);
-  await graph_store.open(undefined, true);
+  await graph_store.open(true);
 
   // Parse and import RDF data
   // Note: For Node.js < 18, you may need to install node-fetch or use https module

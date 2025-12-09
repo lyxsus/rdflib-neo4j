@@ -124,7 +124,7 @@ describe('Handle Vocab URI Tests', () => {
     const parser = new Parser({ format: 'text/turtle' });
     const quads = parser.parse(rdf_payload);
 
-    await graph_store.open(undefined, true);
+    await graph_store.open(true);
     
     let errorThrown = false;
     try {

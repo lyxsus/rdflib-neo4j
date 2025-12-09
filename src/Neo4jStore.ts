@@ -61,10 +61,9 @@ export class Neo4jStore {
   /**
    * Opens a connection to the Neo4j database.
    *
-   * @param configuration - The configuration for the Neo4j database. (Not used, just kept for compatibility)
    * @param create - Flag indicating whether to create the uniqueness constraint if not found.
    */
-  async open(configuration?: any, create: boolean = true): Promise<void> {
+  async open(create: boolean = true): Promise<void> {
     this.__create_session();
     await this.__constraint_check(create);
     this.__set_open(true);

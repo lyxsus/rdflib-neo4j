@@ -25,7 +25,7 @@ async function main() {
 
   // Create the graph and open the store
   const graph_store = new Neo4jStore(config);
-  await graph_store.open(undefined, true);
+  await graph_store.open(true);
 
   // Define namespaces
   const RDF = {

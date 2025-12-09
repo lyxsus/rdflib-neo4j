@@ -186,7 +186,7 @@ describe('Multival Tests', () => {
 
     const payload3 = ` <http://dbpedia.org/resource/Donald_E._Graham>	<http://www.w3.org/2000/01/rdf-schema#label>	"Donald Ernest. Graham II" . `;
 
-    await graph_store.open(undefined, true);
+    await graph_store.open(true);
 
     for (const payload of [payload1, payload2, payload3]) {
       const parser = new Parser({ format: 'text/turtle' });

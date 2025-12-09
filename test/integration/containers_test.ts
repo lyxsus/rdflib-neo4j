@@ -80,7 +80,7 @@ describe('Containers Tests', () => {
       throw error;
     }
 
-    await graph_store.open(undefined, true);
+    await graph_store.open(true);
     for (const quad of quads) {
       await graph_store.add(quad);
     }

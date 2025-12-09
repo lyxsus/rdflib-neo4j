@@ -69,7 +69,7 @@ const file_path = 'https://github.com/jbarrasa/gc-2022/raw/main/search/onto/conc
 // Create the RDF Store, parse & ingest the data to Neo4j, and close the store
 // (If the field batching is set to true in the Neo4jStoreConfig, remember to close the store to prevent the loss of any uncommitted records.)
 const neo4j_aura = new Neo4jStore(config);
-await neo4j_aura.open(undefined, true);
+await neo4j_aura.open(true);
 
 // Fetch and parse the RDF file
 const response = await fetch(file_path);
@@ -108,7 +108,7 @@ const config = new Neo4jStoreConfig(
 
 // Create the graph and open the store
 const neo4j_aura = new Neo4jStore(config);
-await neo4j_aura.open(undefined, true);
+await neo4j_aura.open(true);
 
 // Define namespaces
 const RDF = {

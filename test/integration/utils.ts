@@ -118,7 +118,7 @@ export async function read_file_n10s_and_rdflib(
   const parser = new Parser({ format: rdflib_file_format });
   const quads = parser.parse(rdf_payload);
   
-  await graph_store.open(undefined, true);
+  await graph_store.open(true);
   for (const quad of quads) {
     await graph_store.add(quad);
   }

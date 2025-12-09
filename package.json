@@ -21,7 +21,7 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/neo4j-labs/rdflib-neo4j.git"
+    "url": "git+https://github.com/lyxsus/rdflib-neo4j.git"
   },
   "dependencies": {
     "@rdfjs/data-model": "^2.0.1",

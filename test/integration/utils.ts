@@ -75,14 +75,17 @@ export async function read_file_n10s_and_rdflib(
     n10s_params = { handleVocabUris: 'IGNORE' },
     n10s_mappings = [],
     get_rels = false,
-    file_path = '../test_files/n10s_example.ttl',
+    file_path = 'test_files/n10s_example.ttl',
     n10s_file_format = "'Turtle'",
     rdflib_file_format = 'ttl'
   } = options;
 
   // Read and parse RDF file
   const testDir = path.dirname(__filename);
-  const fullPath = path.join(testDir, file_path);
+  // Handle both relative and absolute paths
+  const fullPath = file_path.startsWith('../') 
+    ? path.join(testDir, file_path) 
+    : path.join(testDir, '..', file_path);
   const rdf_payload = fs.readFileSync(fullPath, 'utf-8');
 
   // Import with n10s

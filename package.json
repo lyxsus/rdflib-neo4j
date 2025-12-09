@@ -1,11 +1,11 @@
 {
   "name": "rdflib-neo4j",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "RDFLib Store backed by neo4j, migrated to TypeScript",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "test": "jest",
     "prepublishOnly": "npm run build"
   },
@@ -34,6 +34,7 @@
     "@babel/preset-env": "^7.28.5",
     "@testcontainers/neo4j": "^10.7.0",
     "@types/jest": "^29.5.11",
+    "@types/n3": "^1.26.1",
     "@types/node": "^20.10.6",
     "@types/rdfjs__data-model": "^2.0.9",
     "babel-jest": "^30.2.0",

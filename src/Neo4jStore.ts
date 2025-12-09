@@ -15,6 +15,7 @@ export class Neo4jStore {
   private driver: Driver | null = null;
   private session: Session | null = null;
   private driver_owned: boolean = false; // Track if we created the driver (should close it)
+  private database: string | null = null; // Database name from auth_data
   config: Neo4jStoreConfig;
   batching: boolean;
   buffer_max_size: number;
@@ -43,6 +44,8 @@ export class Neo4jStore {
     // Check that either driver or credentials are provided
     if (!neo4j_driver) {
       check_auth_data(config.auth_data);
+      // Store the database name from auth_data
+      this.database = config.auth_data?.database || null;
     } else if (config.auth_data) {
       throw new Error('Either initialize the store with credentials or driver. You cannot do both.');
     }
@@ -87,7 +90,6 @@ export class Neo4jStore {
       this.driver = null;
     }
     this.__set_open(false);
-    console.log(`IMPORTED ${this.total_triples} TRIPLES`);
     this.total_triples = 0;
   }
 
@@ -140,7 +142,6 @@ export class Neo4jStore {
         await this.commit();
       }
     } catch (e: any) {
-      console.log(`Flushing all query params due to error: ${e}`);
       this.__close_on_error();
       throw e;
     }
@@ -199,7 +200,6 @@ export class Neo4jStore {
      * @param val - The value to set for the 'open' status.
      */
     this.__open = val;
-    console.log(`The store is now: ${this.__open ? 'Open' : 'Closed'}`);
   }
 
   private __get_driver(): Driver {
@@ -249,11 +249,13 @@ export class Neo4jStore {
        RETURN COUNT(*) = 1 AS constraint_found
        `;
     
-    if (!this.session) {
-      throw new Error('Session not initialized');
+    const driver = this.__get_driver();
+    const queryConfig: any = {};
+    if (this.database) {
+      queryConfig.database = this.database;
     }
 
-    const result = await this.session.run(constraint_check);
+    const result = await driver.executeQuery(constraint_check, queryConfig);
     const constraint_found = result.records.length > 0 && result.records[0].get('constraint_found') === true;
 
     if (!constraint_found && create) {
@@ -262,20 +264,10 @@ export class Neo4jStore {
         const create_constraint = `
            CREATE CONSTRAINT n10s_unique_uri IF NOT EXISTS FOR (r:Resource) REQUIRE r.uri IS UNIQUE
            `;
-        await this.session.run(create_constraint);
-        console.log('Uniqueness constraint on :Resource(uri) is created.');
+        await driver.executeQuery(create_constraint, queryConfig);
       } catch (e: any) {
-        console.log('Error: Unable to create the uniqueness constraint. Make sure you have the necessary privileges.');
-        console.log('Exception: ', e);
+        // Silently fail - constraint creation may not be allowed
       }
-    } else {
-      console.log(
-        `Uniqueness constraint on :Resource(uri) ${constraint_found ? '' : 'not '}found. ${
-          constraint_found
-            ? ''
-            : 'Run the following command on the Neo4j DB to create the constraint: CREATE CONSTRAINT n10s_unique_uri FOR (r:Resource) REQUIRE r.uri IS UNIQUE. Or provide create=True to create it.'
-        }`
-      );
     }
   }
 
@@ -457,9 +449,14 @@ export class Neo4jStore {
 
     try {
       // Use driver.executeQuery directly for reliable write operations
-      // Always write to default database for consistency
+      // Use the database from auth_data if specified
       const driver = this.__get_driver();
-      await driver.executeQuery(query, params);
+      // Merge database config into params object (params is typically { params: [...] })
+      const queryConfig: any = { ...params };
+      if (this.database) {
+        queryConfig.database = this.database;
+      }
+      await driver.executeQuery(query, queryConfig);
     } catch (e: any) {
       const error = handle_neo4j_driver_exception(e);
       console.error(error);

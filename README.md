@@ -1,9 +1,13 @@
-<img src="https://raw.githubusercontent.com/RDFLib/rdflib/master/docs/_static/RDFlib.png" height="75"> <img src="https://guides.neo4j.com/rdf/n10s.png" height="75">
+<img src="https://raw.githubusercontent.com/RDFLib/rdflib/master/docs/_static/RDFlib.png" height="75">
 
 # rdflib-neo4j
 RDF Store backed by neo4j for TypeScript/JavaScript!
 
 This library provides an RDF store implementation that persists RDF data to Neo4j, using the rdf.js ecosystem for RDF handling.
+
+## Migration Notice
+
+This is a TypeScript/JavaScript migration of the original Python [rdflib-neo4j](https://github.com/neo4j-labs/rdflib-neo4j) library developed by Neo4j Labs. The original Python implementation was created by Jesús Barrasa, Aleksandar Simeunovic, and Alfredo Rubin. This TypeScript version maintains the same functionality and API design while using the rdf.js ecosystem instead of Python RDFLib.
 
 ## Getting Started
 Below are the procedures you should adhere to for both your Neo4j database and your TypeScript/JavaScript code:

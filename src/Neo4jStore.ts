@@ -102,6 +102,15 @@ export class Neo4jStore {
   }
 
   /**
+   * Gets the Neo4j driver instance.
+   *
+   * @returns The Neo4j driver instance.
+   */
+  getDriver(): Driver {
+    return this.__get_driver();
+  }
+
+  /**
    * Adds a quad to the Neo4j store.
    *
    * @param quad - The quad to add.

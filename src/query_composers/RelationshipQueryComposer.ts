@@ -49,6 +49,7 @@ export class RelationshipQueryComposer {
                  MERGE (to:Resource{ uri : param["to"] })
              `;
     q += ` MERGE (from)-[r:\`${this.rel_type}\`]->(to)`;
+    q += ` ON CREATE SET r.createdAt = datetime()`;
     if (this.props.size > 0) {
       throw new Error('Not implemented');
       // q += `SET ${', '.join([`r.\`${prop}\` = coalesce(param["${prop}"],null)` for prop in this.props])}`;

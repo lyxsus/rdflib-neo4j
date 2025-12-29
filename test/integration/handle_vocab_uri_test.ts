@@ -1,12 +1,12 @@
-import * as path from 'path';
 import * as fs from 'fs';
-import { Driver } from 'neo4j-driver';
-import { Neo4jStore } from '../../src/Neo4jStore';
-import { Neo4jStoreConfig } from '../../src/config/Neo4jStoreConfig';
-import { ShortenStrictException, HANDLE_VOCAB_URI_STRATEGY } from '../../src/config/const';
-import { getNeo4jDriver, getNeo4jConnectionParameters, cleanupDatabases } from './fixtures';
-import { read_file_n10s_and_rdflib, records_equal } from './utils';
 import { Parser } from 'n3';
+import type { Driver } from 'neo4j-driver';
+import * as path from 'path';
+import { HANDLE_VOCAB_URI_STRATEGY, ShortenStrictException } from '../../src/config/const';
+import { Neo4jStoreConfig } from '../../src/config/Neo4jStoreConfig';
+import { Neo4jStore } from '../../src/Neo4jStore';
+import { cleanupDatabases, getNeo4jConnectionParameters, getNeo4jDriver } from './fixtures';
+import { read_file_n10s_and_rdflib, records_equal } from './utils';
 
 describe('Handle Vocab URI Tests', () => {
   let neo4j_driver: Driver;
@@ -34,8 +34,8 @@ describe('Handle Vocab URI Tests', () => {
      */
     // Define your prefixes
     const prefixes = {
-      'neo4ind': 'http://neo4j.org/ind#',
-      'neo4voc': 'http://neo4j.org/vocab/sw#'
+      neo4ind: 'http://neo4j.org/ind#',
+      neo4voc: 'http://neo4j.org/vocab/sw#',
     };
 
     // Define your custom mappings
@@ -60,8 +60,8 @@ describe('Handle Vocab URI Tests', () => {
     const n10s_mappings: Array<[string, string]> = [
       [
         `CALL n10s.nsprefixes.add('neo4voc', 'http://neo4j.org/vocab/sw#')`,
-        `CALL n10s.nsprefixes.add('neo4ind', 'http://neo4j.org/ind#')`
-      ]
+        `CALL n10s.nsprefixes.add('neo4ind', 'http://neo4j.org/ind#')`,
+      ],
     ];
 
     const [records_from_rdf_lib, records, rels_from_rdflib, rels] = await read_file_n10s_and_rdflib(
@@ -70,7 +70,7 @@ describe('Handle Vocab URI Tests', () => {
       {
         n10s_params,
         n10s_mappings,
-        get_rels: true
+        get_rels: true,
       }
     );
 
@@ -98,7 +98,7 @@ describe('Handle Vocab URI Tests', () => {
 
   test('shorten missing prefix', async () => {
     const prefixes = {
-      'neo4ind': 'http://neo4j.org/ind#'
+      neo4ind: 'http://neo4j.org/ind#',
     };
 
     const custom_mappings: Array<{ prefixName: string; toReplace: string; newValue: string }> = [];
@@ -125,7 +125,7 @@ describe('Handle Vocab URI Tests', () => {
     const quads = parser.parse(rdf_payload);
 
     await graph_store.open(true);
-    
+
     let errorThrown = false;
     try {
       for (const quad of quads) {
@@ -137,7 +137,7 @@ describe('Handle Vocab URI Tests', () => {
       errorThrown = true;
     }
     expect(errorThrown).toBe(true);
-    
+
     await graph_store.close(true);
   });
 
@@ -159,7 +159,7 @@ describe('Handle Vocab URI Tests', () => {
       graph_store,
       {
         n10s_params,
-        get_rels: true
+        get_rels: true,
       }
     );
 
@@ -203,7 +203,7 @@ describe('Handle Vocab URI Tests', () => {
       graph_store,
       {
         n10s_params,
-        get_rels: true
+        get_rels: true,
       }
     );
 
@@ -231,7 +231,7 @@ describe('Handle Vocab URI Tests', () => {
 
   test('ignore strategy on json-ld file', async () => {
     const prefixes = {
-      'neo4ind': 'http://neo4j.org/ind#'
+      neo4ind: 'http://neo4j.org/ind#',
     };
 
     const custom_mappings: Array<{ prefixName: string; toReplace: string; newValue: string }> = [];
@@ -252,7 +252,7 @@ describe('Handle Vocab URI Tests', () => {
     // Try to parse JSON-LD file - this should work with IGNORE strategy
     const testDir = path.dirname(__filename);
     const filePath = path.join(testDir, '../test_files/n10s_example.json');
-    
+
     if (fs.existsSync(filePath)) {
       // n3 parser doesn't support JSON-LD format
       // Skip this test for now or use a JSON-LD parser library
@@ -264,4 +264,3 @@ describe('Handle Vocab URI Tests', () => {
     }
   });
 });
-

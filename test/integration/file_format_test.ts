@@ -1,6 +1,11 @@
-import { Driver } from 'neo4j-driver';
-import { Neo4jStore } from '../../src/Neo4jStore';
-import { getNeo4jDriver, config_graph_store, cleanupDatabases, getNeo4jConnectionParameters } from './fixtures';
+import type { Driver } from 'neo4j-driver';
+import type { Neo4jStore } from '../../src/Neo4jStore';
+import {
+  cleanupDatabases,
+  config_graph_store,
+  getNeo4jConnectionParameters,
+  getNeo4jDriver,
+} from './fixtures';
 import { read_file_n10s_and_rdflib, records_equal } from './utils';
 
 describe('File Format Tests', () => {
@@ -38,4 +43,3 @@ describe('File Format Tests', () => {
     expect(true).toBe(true); // Placeholder assertion to mark test as passing
   });
 });
-

@@ -1,10 +1,10 @@
-import { Driver, driver as createDriver, auth } from 'neo4j-driver';
-import { Neo4jContainer, StartedNeo4jContainer } from '@testcontainers/neo4j';
-import { Neo4jStore } from '../../src/Neo4jStore';
-import { Neo4jStoreConfig } from '../../src/config/Neo4jStoreConfig';
+import { Neo4jContainer, type StartedNeo4jContainer } from '@testcontainers/neo4j';
+import { auth, driver as createDriver, type Driver } from 'neo4j-driver';
 import { HANDLE_VOCAB_URI_STRATEGY } from '../../src/config/const';
+import { Neo4jStoreConfig } from '../../src/config/Neo4jStoreConfig';
+import type { AuthData } from '../../src/config/utils';
+import { Neo4jStore } from '../../src/Neo4jStore';
 import { LOCAL, N10S_CONSTRAINT_QUERY, RDFLIB_DB } from './constants';
-import { AuthData } from '../../src/config/utils';
 
 let neo4jContainer: StartedNeo4jContainer | null = null;
 
@@ -31,7 +31,7 @@ export async function teardownNeo4jContainer(): Promise<void> {
 
 export async function getNeo4jDriver(): Promise<Driver> {
   let driver: Driver;
-  
+
   if (!LOCAL) {
     const container = await setupNeo4jContainer();
     const uri = container.getBoltUri();
@@ -43,7 +43,7 @@ export async function getNeo4jDriver(): Promise<Driver> {
       uri: process.env.NEO4J_URI_LOCAL || 'bolt://localhost:7687',
       database: RDFLIB_DB,
       user: process.env.NEO4J_USER_LOCAL || 'neo4j',
-      pwd: process.env.NEO4J_PWD_LOCAL || 'password'
+      pwd: process.env.NEO4J_PWD_LOCAL || 'password',
     };
     driver = createDriver(auth_data.uri, auth.basic(auth_data.user, auth_data.pwd));
   }
@@ -51,19 +51,22 @@ export async function getNeo4jDriver(): Promise<Driver> {
   // Initialize n10s procs - try to create database, ignore if it already exists or if multi-database is not supported
   try {
     await driver.executeQuery(`CREATE DATABASE ${RDFLIB_DB} IF NOT EXISTS WAIT`, {
-      database: 'system'
+      database: 'system',
     });
     // If database creation succeeded, use the created database
     await driver.executeQuery(N10S_CONSTRAINT_QUERY, { database: RDFLIB_DB });
   } catch (e: any) {
     // If database creation fails (e.g., Community Edition doesn't support it), use default database
-    if (e.message?.includes('Unsupported administration command') || e.code?.includes('Neo.ClientError.Statement')) {
+    if (
+      e.message?.includes('Unsupported administration command') ||
+      e.code?.includes('Neo.ClientError.Statement')
+    ) {
       console.log('Multi-database not supported, using default database');
     } else if (!e.message?.includes('already exists') && !e.code?.includes('42N11')) {
       throw e;
     }
   }
-  
+
   // Always create constraint in default database
   await driver.executeQuery(N10S_CONSTRAINT_QUERY);
 
@@ -76,23 +79,20 @@ export async function cleanupDatabases(driver: Driver): Promise<void> {
   try {
     await driver.executeQuery('MATCH (n) DETACH DELETE n');
     // Wait a bit for cleanup to complete
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
   } catch (e) {
     // Ignore errors
   }
   // Try to clean RDFLIB_DB if it exists (for Enterprise Edition)
   try {
     await driver.executeQuery('MATCH (n) DETACH DELETE n', { database: RDFLIB_DB });
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
   } catch (e) {
     // Ignore errors if database doesn't exist or isn't accessible
   }
 }
 
-export function config_graph_store(
-  auth_data: AuthData,
-  batching: boolean = false
-): Neo4jStore {
+export function config_graph_store(auth_data: AuthData, batching: boolean = false): Neo4jStore {
   const config = new Neo4jStoreConfig(
     auth_data,
     [],
@@ -111,7 +111,7 @@ export async function getNeo4jConnectionParameters(): Promise<AuthData> {
       uri: process.env.NEO4J_URI_LOCAL || 'bolt://localhost:7687',
       database: RDFLIB_DB,
       user: process.env.NEO4J_USER_LOCAL || 'neo4j',
-      pwd: process.env.NEO4J_PWD_LOCAL || 'password'
+      pwd: process.env.NEO4J_PWD_LOCAL || 'password',
     };
   } else {
     const container = await setupNeo4jContainer();
@@ -119,7 +119,7 @@ export async function getNeo4jConnectionParameters(): Promise<AuthData> {
       uri: container.getBoltUri(),
       database: RDFLIB_DB,
       user: 'neo4j',
-      pwd: container.getPassword()
+      pwd: container.getPassword(),
     };
   }
 }

@@ -25,8 +25,9 @@ export function check_auth_data(auth: AuthData | null | undefined): void {
       throw new WrongAuthenticationException(paramName);
     }
     if (!auth[paramName as keyof AuthData]) {
-      throw new Error(`The key ${paramName} is defined in the authentication dict but the value is empty.`);
+      throw new Error(
+        `The key ${paramName} is defined in the authentication dict but the value is empty.`
+      );
     }
   }
 }
-

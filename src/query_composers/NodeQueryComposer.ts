@@ -71,7 +71,7 @@ export class NodeQueryComposer {
      */
     let q = ` UNWIND $params as param MERGE (n:Resource{ uri : param.uri }) `;
     if (this.labels.size > 0) {
-      const labelParts = Array.from(this.labels).map(label => `n:\`${label}\``);
+      const labelParts = Array.from(this.labels).map((label) => `n:\`${label}\``);
       q += `SET ${labelParts.join(', ')} `;
     }
     if (this.props.size > 0 || this.multi_props.size > 0) {
@@ -91,9 +91,10 @@ export class NodeQueryComposer {
       if (this.multival_props_predicates.length > 0) {
         // If there are properties treated as multivalued, use SET query for each property
         // and SET query for each property to append to the array
-        let q = this.props.size > 0
-          ? `SET ${Array.from(this.props).map(prop_query_single).join(', ')}`
-          : '';
+        let q =
+          this.props.size > 0
+            ? `SET ${Array.from(this.props).map(prop_query_single).join(', ')}`
+            : '';
         if (this.multi_props.size > 0) {
           q += ` SET ${Array.from(this.multi_props).map(prop_query_append).join(', ')}`;
         }
@@ -125,4 +126,3 @@ export class NodeQueryComposer {
     this.query_params = [];
   }
 }
-

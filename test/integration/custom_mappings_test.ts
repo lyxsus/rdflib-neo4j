@@ -1,12 +1,11 @@
 import DataFactory from '@rdfjs/data-model';
 import { NamedNode } from '@rdfjs/types';
-import { Driver } from 'neo4j-driver';
-import { Neo4jStore } from '../../src/Neo4jStore';
-import { Neo4jStoreConfig } from '../../src/config/Neo4jStoreConfig';
+import type { Driver } from 'neo4j-driver';
 import { HANDLE_VOCAB_URI_STRATEGY } from '../../src/config/const';
-import { getNeo4jDriver, getNeo4jConnectionParameters, cleanupDatabases } from './fixtures';
-import { read_file_n10s_and_rdflib } from './utils';
-import { records_equal } from './utils';
+import { Neo4jStoreConfig } from '../../src/config/Neo4jStoreConfig';
+import { Neo4jStore } from '../../src/Neo4jStore';
+import { cleanupDatabases, getNeo4jConnectionParameters, getNeo4jDriver } from './fixtures';
+import { read_file_n10s_and_rdflib, records_equal } from './utils';
 
 describe('Custom Mappings Tests', () => {
   let neo4j_driver: Driver;
@@ -34,13 +33,11 @@ describe('Custom Mappings Tests', () => {
      */
     // Define your prefixes
     const prefixes = {
-      'neo4voc': 'http://neo4j.org/vocab/sw#'
+      neo4voc: 'http://neo4j.org/vocab/sw#',
     };
 
     // Define your custom mappings
-    const custom_mappings = [
-      { prefixName: 'neo4voc', toReplace: 'runsOn', newValue: 'RUNS_ON' }
-    ];
+    const custom_mappings = [{ prefixName: 'neo4voc', toReplace: 'runsOn', newValue: 'RUNS_ON' }];
 
     const multival_props_names: Array<{ prefixName: string; propName: string }> = [];
 
@@ -57,8 +54,8 @@ describe('Custom Mappings Tests', () => {
     const n10s_mappings: Array<[string, string]> = [
       [
         `CALL n10s.nsprefixes.add('neo4voc', 'http://neo4j.org/vocab/sw#')`,
-        `CALL n10s.mapping.add('http://neo4j.org/vocab/sw#runsOn', 'RUNS_ON')`
-      ]
+        `CALL n10s.mapping.add('http://neo4j.org/vocab/sw#runsOn', 'RUNS_ON')`,
+      ],
     ];
 
     const n10s_params = { handleVocabUris: 'MAP' };
@@ -68,7 +65,7 @@ describe('Custom Mappings Tests', () => {
       {
         n10s_params,
         n10s_mappings,
-        get_rels: true
+        get_rels: true,
       }
     );
 
@@ -101,13 +98,11 @@ describe('Custom Mappings Tests', () => {
      */
     // Define your prefixes
     const prefixes = {
-      'neo4voc': 'http://neo4j.org/vocab/sw#'
+      neo4voc: 'http://neo4j.org/vocab/sw#',
     };
 
     // Define your custom mappings (note: lowercase 'runson' won't match 'runsOn' in the data)
-    const custom_mappings = [
-      { prefixName: 'neo4voc', toReplace: 'runson', newValue: 'RUNS_ON' }
-    ];
+    const custom_mappings = [{ prefixName: 'neo4voc', toReplace: 'runson', newValue: 'RUNS_ON' }];
 
     const multival_props_names: Array<{ prefixName: string; propName: string }> = [];
 
@@ -124,8 +119,8 @@ describe('Custom Mappings Tests', () => {
     const n10s_mappings: Array<[string, string]> = [
       [
         `CALL n10s.nsprefixes.add('neo4voc', 'http://neo4j.org/vocab/sw#')`,
-        `CALL n10s.mapping.add('http://neo4j.org/vocab/sw#runson', 'RUNS_ON')`
-      ]
+        `CALL n10s.mapping.add('http://neo4j.org/vocab/sw#runson', 'RUNS_ON')`,
+      ],
     ];
 
     const n10s_params = { handleVocabUris: 'MAP' };
@@ -135,7 +130,7 @@ describe('Custom Mappings Tests', () => {
       {
         n10s_params,
         n10s_mappings,
-        get_rels: true
+        get_rels: true,
       }
     );
 
@@ -168,7 +163,7 @@ describe('Custom Mappings Tests', () => {
      */
     // Define your prefixes
     const prefixes = {
-      'neo4voc': 'http://neo4j.org/vocab/sw#'
+      neo4voc: 'http://neo4j.org/vocab/sw#',
     };
 
     // Define your custom mappings (empty)
@@ -195,7 +190,7 @@ describe('Custom Mappings Tests', () => {
       {
         n10s_params,
         n10s_mappings,
-        get_rels: true
+        get_rels: true,
       }
     );
 
@@ -221,4 +216,3 @@ describe('Custom Mappings Tests', () => {
     }
   });
 });
-

@@ -1,12 +1,12 @@
-import { Driver, Session, Result, driver as createDriver, auth } from 'neo4j-driver';
-import { Quad, NamedNode, Literal } from '@rdfjs/types';
 import DataFactory from '@rdfjs/data-model';
-import { Neo4jStoreConfig } from './config/Neo4jStoreConfig';
+import { Literal, type NamedNode, type Quad } from '@rdfjs/types';
+import { auth, driver as createDriver, type Driver, Result, type Session } from 'neo4j-driver';
+import { NEO4J_DRIVER_USER_AGENT_NAME } from './config/const';
+import type { Neo4jStoreConfig } from './config/Neo4jStoreConfig';
+import { AuthData, check_auth_data } from './config/utils';
 import { Neo4jTriple } from './Neo4jTriple';
 import { NodeQueryComposer } from './query_composers/NodeQueryComposer';
 import { RelationshipQueryComposer } from './query_composers/RelationshipQueryComposer';
-import { check_auth_data, AuthData } from './config/utils';
-import { NEO4J_DRIVER_USER_AGENT_NAME } from './config/const';
 import { handle_neo4j_driver_exception } from './utils';
 
 export class Neo4jStore {
@@ -47,7 +47,9 @@ export class Neo4jStore {
       // Store the database name from auth_data
       this.database = config.auth_data?.database || null;
     } else if (config.auth_data) {
-      throw new Error('Either initialize the store with credentials or driver. You cannot do both.');
+      throw new Error(
+        'Either initialize the store with credentials or driver. You cannot do both.'
+      );
     }
 
     this.batching = config.batching;
@@ -184,7 +186,9 @@ export class Neo4jStore {
    * @param txn - Transaction (not used).
    */
   async remove(quad: Quad, context?: any, txn?: any): Promise<void> {
-    throw new Error('This is a streamer so it doesn\'t preserve the state, there is no removal feature.');
+    throw new Error(
+      "This is a streamer so it doesn't preserve the state, there is no removal feature."
+    );
   }
 
   private __close_on_error(): void {
@@ -213,13 +217,9 @@ export class Neo4jStore {
   private __get_driver(): Driver {
     if (!this.driver) {
       const auth_data = this.config.auth_data!;
-      this.driver = createDriver(
-        auth_data.uri,
-        auth.basic(auth_data.user, auth_data.pwd),
-        {
-          userAgent: NEO4J_DRIVER_USER_AGENT_NAME
-        }
-      );
+      this.driver = createDriver(auth_data.uri, auth.basic(auth_data.user, auth_data.pwd), {
+        userAgent: NEO4J_DRIVER_USER_AGENT_NAME,
+      });
     }
     return this.driver;
   }
@@ -231,13 +231,13 @@ export class Neo4jStore {
      * This function initializes the driver and session based on the provided configuration.
      */
     const sessionConfig: any = {
-      defaultAccessMode: 'WRITE'
+      defaultAccessMode: 'WRITE',
     };
-    
+
     // Use default database for session - write operations use driver.executeQuery which handles database
     // Some Neo4j setups have issues with session-level database configuration
     // The database will be specified in executeQuery calls instead
-    
+
     this.session = this.__get_driver().session(sessionConfig);
   }
 
@@ -256,7 +256,7 @@ export class Neo4jStore {
            AND properties = ["uri"] 
        RETURN COUNT(*) = 1 AS constraint_found
        `;
-    
+
     const driver = this.__get_driver();
     const queryConfig: any = {};
     if (this.database) {
@@ -264,7 +264,8 @@ export class Neo4jStore {
     }
 
     const result = await driver.executeQuery(constraint_check, queryConfig);
-    const constraint_found = result.records.length > 0 && result.records[0].get('constraint_found') === true;
+    const constraint_found =
+      result.records.length > 0 && result.records[0].get('constraint_found') === true;
 
     if (!constraint_found && create) {
       try {
@@ -472,4 +473,3 @@ export class Neo4jStore {
     }
   }
 }
-

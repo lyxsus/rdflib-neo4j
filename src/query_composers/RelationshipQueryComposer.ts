@@ -74,4 +74,3 @@ export class RelationshipQueryComposer {
     this.query_params = [];
   }
 }
-

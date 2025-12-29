@@ -1,7 +1,7 @@
-import { NamedNode, Literal, Quad, Term } from '@rdfjs/types';
 import DataFactory from '@rdfjs/data-model';
+import type { Literal, NamedNode, Quad, Term } from '@rdfjs/types';
+import { HANDLE_MULTIVAL_STRATEGY, type HANDLE_VOCAB_URI_STRATEGY } from './config/const';
 import { handle_vocab_uri } from './utils';
-import { HANDLE_VOCAB_URI_STRATEGY, HANDLE_MULTIVAL_STRATEGY } from './config/const';
 
 const RDF_TYPE = DataFactory.namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type');
 
@@ -114,7 +114,7 @@ export class Neo4jTriple {
     }
     res['uri'] = this.termToString(this.uri);
     for (const [key, values] of this.multi_props) {
-      res[key] = values.map(v => this.literalToValue(v));
+      res[key] = values.map((v) => this.literalToValue(v));
     }
     return res;
   }
@@ -153,7 +153,8 @@ export class Neo4jTriple {
      * @param predicate - The predicate URI to be handled.
      * @returns The handled predicate URI based on the specified strategy.
      */
-    const predicateNode = typeof predicate === 'string' ? DataFactory.namedNode(predicate) : predicate;
+    const predicateNode =
+      typeof predicate === 'string' ? DataFactory.namedNode(predicate) : predicate;
     return handle_vocab_uri(mappings, predicateNode, this.prefixes, this.handle_vocab_uri_strategy);
   }
 
@@ -179,13 +180,18 @@ export class Neo4jTriple {
       const literal = object as Literal;
       // Convert literal value to appropriate JavaScript type
       let value: any = literal.value;
-      
+
       // Handle numeric types - check datatype if available
       if (literal.datatype) {
-        const datatypeUri = typeof literal.datatype === 'string' ? literal.datatype : literal.datatype.value;
+        const datatypeUri =
+          typeof literal.datatype === 'string' ? literal.datatype : literal.datatype.value;
         if (datatypeUri.includes('integer') || datatypeUri.includes('int')) {
           value = parseInt(String(value), 10);
-        } else if (datatypeUri.includes('float') || datatypeUri.includes('double') || datatypeUri.includes('decimal')) {
+        } else if (
+          datatypeUri.includes('float') ||
+          datatypeUri.includes('double') ||
+          datatypeUri.includes('decimal')
+        ) {
           value = parseFloat(String(value));
         } else if (datatypeUri.includes('boolean')) {
           value = value === 'true' || value === true || value === 1;
@@ -193,7 +199,12 @@ export class Neo4jTriple {
       } else if (typeof value === 'string') {
         // If no explicit datatype, try to infer from string value
         const numValue = Number(value);
-        if (!isNaN(numValue) && isFinite(numValue) && value.trim() !== '' && !isNaN(parseInt(value, 10))) {
+        if (
+          !isNaN(numValue) &&
+          isFinite(numValue) &&
+          value.trim() !== '' &&
+          !isNaN(parseInt(value, 10))
+        ) {
           // Check if it's an integer or float
           if (Number.isInteger(numValue) && !value.includes('.')) {
             value = parseInt(value, 10);
@@ -202,7 +213,7 @@ export class Neo4jTriple {
           }
         }
       }
-      
+
       const prop_name = this.handle_vocab_uri(mappings, namedPredicate);
 
       // If at least a name is defined and the predicate is one of the properties defined by the user
@@ -247,20 +258,25 @@ export class Neo4jTriple {
      * Converts an RDF Literal to a JavaScript value.
      * Handles type conversion for numeric and boolean types.
      */
-    let value: any = literal.value;
-    
+    const value: any = literal.value;
+
     // Handle numeric types based on datatype
     if (literal.datatype) {
-      const datatypeUri = typeof literal.datatype === 'string' ? literal.datatype : literal.datatype.value;
+      const datatypeUri =
+        typeof literal.datatype === 'string' ? literal.datatype : literal.datatype.value;
       if (datatypeUri.includes('integer') || datatypeUri.includes('int')) {
         return parseInt(String(value), 10);
-      } else if (datatypeUri.includes('float') || datatypeUri.includes('double') || datatypeUri.includes('decimal')) {
+      } else if (
+        datatypeUri.includes('float') ||
+        datatypeUri.includes('double') ||
+        datatypeUri.includes('decimal')
+      ) {
         return parseFloat(String(value));
       } else if (datatypeUri.includes('boolean')) {
         return value === 'true' || value === true || value === 1;
       }
     }
-    
+
     // If it's a string that looks like a number, try to parse it
     if (typeof value === 'string') {
       const numValue = Number(value);
@@ -271,7 +287,7 @@ export class Neo4jTriple {
         return numValue;
       }
     }
-    
+
     return value;
   }
 
@@ -288,4 +304,3 @@ export class Neo4jTriple {
     return String(term);
   }
 }
-

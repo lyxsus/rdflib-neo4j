@@ -1,6 +1,11 @@
-import { DEFAULT_PREFIXES, PrefixNotFoundException, HANDLE_VOCAB_URI_STRATEGY, HANDLE_MULTIVAL_STRATEGY } from './const';
 import { NamedNode } from '@rdfjs/types';
-import { check_auth_data, AuthData } from './utils';
+import {
+  DEFAULT_PREFIXES,
+  HANDLE_MULTIVAL_STRATEGY,
+  HANDLE_VOCAB_URI_STRATEGY,
+  PrefixNotFoundException,
+} from './const';
+import { type AuthData, check_auth_data } from './utils';
 
 export interface CustomMapping {
   prefixName: string;
@@ -220,4 +225,3 @@ export class Neo4jStoreConfig {
     return { ...this };
   }
 }
-

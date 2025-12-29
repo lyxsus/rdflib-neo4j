@@ -1,5 +1,9 @@
-import { NamedNode } from '@rdfjs/types';
-import { ShortenStrictException, HANDLE_VOCAB_URI_STRATEGY, NEO4J_DRIVER_DICT_MESSAGE } from './config/const';
+import type { NamedNode } from '@rdfjs/types';
+import {
+  HANDLE_VOCAB_URI_STRATEGY,
+  NEO4J_DRIVER_DICT_MESSAGE,
+  ShortenStrictException,
+} from './config/const';
 
 export function getLocalPart(uri: string): string {
   /**
@@ -57,7 +61,10 @@ export function create_shortened_predicate(namespace: string, local_part: string
   return `${namespace}__${local_part}`;
 }
 
-export function handle_vocab_uri_shorten(predicate: string | NamedNode, prefixes: Record<string, string>): string {
+export function handle_vocab_uri_shorten(
+  predicate: string | NamedNode,
+  prefixes: Record<string, string>
+): string {
   /**
    * Shortens a URI by combining the namespace and local part based on provided prefixes.
    *
@@ -136,4 +143,3 @@ export function handle_neo4j_driver_exception(ex: Error): Error {
   const customException = NEO4J_DRIVER_DICT_MESSAGE[errorMessage];
   return customException ? customException() : ex;
 }
-

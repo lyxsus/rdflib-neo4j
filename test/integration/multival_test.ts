@@ -1,11 +1,11 @@
-import { Driver } from 'neo4j-driver';
-import { Neo4jStore } from '../../src/Neo4jStore';
-import { Neo4jStoreConfig } from '../../src/config/Neo4jStoreConfig';
-import { HANDLE_VOCAB_URI_STRATEGY, HANDLE_MULTIVAL_STRATEGY } from '../../src/config/const';
-import { getNeo4jDriver, getNeo4jConnectionParameters, cleanupDatabases } from './fixtures';
-import { read_file_n10s_and_rdflib, records_equal } from './utils';
-import { RDFLIB_DB } from './constants';
 import { Parser } from 'n3';
+import type { Driver } from 'neo4j-driver';
+import { HANDLE_MULTIVAL_STRATEGY, HANDLE_VOCAB_URI_STRATEGY } from '../../src/config/const';
+import { Neo4jStoreConfig } from '../../src/config/Neo4jStoreConfig';
+import { Neo4jStore } from '../../src/Neo4jStore';
+import { RDFLIB_DB } from './constants';
+import { cleanupDatabases, getNeo4jConnectionParameters, getNeo4jDriver } from './fixtures';
+import { read_file_n10s_and_rdflib, records_equal } from './utils';
 
 describe('Multival Tests', () => {
   let neo4j_driver: Driver;
@@ -50,9 +50,13 @@ describe('Multival Tests', () => {
 
     const n10s_params = { handleVocabUris: 'IGNORE', handleMultival: 'ARRAY' };
 
-    const [records_from_rdf_lib, records] = await read_file_n10s_and_rdflib(neo4j_driver, graph_store, {
-      n10s_params
-    });
+    const [records_from_rdf_lib, records] = await read_file_n10s_and_rdflib(
+      neo4j_driver,
+      graph_store,
+      {
+        n10s_params,
+      }
+    );
 
     // If n10s is not available, skip comparison but verify rdflib-neo4j imported data
     if (records.length === 0) {
@@ -69,7 +73,7 @@ describe('Multival Tests', () => {
   test('read file multival with strategy and predicates', async () => {
     /**Compare data imported with n10s procs and n10s + rdflib in single add mode for multivalues*/
     const prefixes = {
-      'neo4voc': 'http://neo4j.org/vocab/sw#'
+      neo4voc: 'http://neo4j.org/vocab/sw#',
     };
 
     const custom_mappings: Array<{ prefixName: string; toReplace: string; newValue: string }> = [];
@@ -92,12 +96,16 @@ describe('Multival Tests', () => {
     const n10s_params = {
       handleVocabUris: 'IGNORE',
       handleMultival: 'ARRAY',
-      multivalPropList: ['http://neo4j.org/vocab/sw#author']
+      multivalPropList: ['http://neo4j.org/vocab/sw#author'],
     };
 
-    const [records_from_rdf_lib, records] = await read_file_n10s_and_rdflib(neo4j_driver, graph_store, {
-      n10s_params
-    });
+    const [records_from_rdf_lib, records] = await read_file_n10s_and_rdflib(
+      neo4j_driver,
+      graph_store,
+      {
+        n10s_params,
+      }
+    );
 
     // If n10s is not available, skip comparison but verify rdflib-neo4j imported data
     if (records.length === 0) {
@@ -114,7 +122,7 @@ describe('Multival Tests', () => {
   test('read file multival with no strategy and predicates', async () => {
     /**Compare data imported with n10s procs and n10s + rdflib in single add mode for multivalues*/
     const prefixes = {
-      'neo4voc': 'http://neo4j.org/vocab/sw#'
+      neo4voc: 'http://neo4j.org/vocab/sw#',
     };
 
     const custom_mappings: Array<{ prefixName: string; toReplace: string; newValue: string }> = [];
@@ -136,12 +144,16 @@ describe('Multival Tests', () => {
 
     const n10s_params = {
       handleVocabUris: 'IGNORE',
-      multivalPropList: ['http://neo4j.org/vocab/sw#author']
+      multivalPropList: ['http://neo4j.org/vocab/sw#author'],
     };
 
-    const [records_from_rdf_lib, records] = await read_file_n10s_and_rdflib(neo4j_driver, graph_store, {
-      n10s_params
-    });
+    const [records_from_rdf_lib, records] = await read_file_n10s_and_rdflib(
+      neo4j_driver,
+      graph_store,
+      {
+        n10s_params,
+      }
+    );
 
     // If n10s is not available, skip comparison but verify rdflib-neo4j imported data
     if (records.length === 0) {
@@ -197,10 +209,9 @@ describe('Multival Tests', () => {
       }
       await graph_store.commit();
 
-      const result = await neo4j_driver.executeQuery(
-        'MATCH (n) WHERE size(n.label) > 1 RETURN n',
-        { database: RDFLIB_DB }
-      );
+      const result = await neo4j_driver.executeQuery('MATCH (n) WHERE size(n.label) > 1 RETURN n', {
+        database: RDFLIB_DB,
+      });
 
       expect(result.records.length).toBe(0);
     }
@@ -208,4 +219,3 @@ describe('Multival Tests', () => {
     await graph_store.close(true);
   });
 });
-

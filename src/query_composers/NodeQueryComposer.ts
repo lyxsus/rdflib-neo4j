@@ -70,6 +70,8 @@ export class NodeQueryComposer {
      * @returns The Neo4j query.
      */
     let q = ` UNWIND $params as param MERGE (n:Resource{ uri : param.uri }) `;
+    q += `ON CREATE SET n.createdAt = datetime(), n.updatedAt = datetime() `;
+    q += `ON MATCH SET n.updatedAt = datetime() `;
     if (this.labels.size > 0) {
       const labelParts = Array.from(this.labels).map((label) => `n:\`${label}\``);
       q += `SET ${labelParts.join(', ')} `;

@@ -16,6 +16,7 @@ export class Neo4jTriple {
   handle_multival_strategy: HANDLE_MULTIVAL_STRATEGY;
   multival_props_names: string[];
   prefixes: Record<string, string>;
+  infer_numeric_from_string: boolean;
 
   /**
    * Represents a triple extracted from RDF data for use in a Neo4j database.
@@ -25,13 +26,15 @@ export class Neo4jTriple {
    * @param handle_multival_strategy - The strategy to handle multiple values.
    * @param multival_props_names - A list containing URIs to be treated as multivalued.
    * @param prefixes - A dictionary of namespace prefixes used for vocabulary URI handling.
+   * @param infer_numeric_from_string - If true, plain string literals that look like numbers are converted to Neo4j numbers.
    */
   constructor(
     uri: Term,
     handle_vocab_uri_strategy: HANDLE_VOCAB_URI_STRATEGY,
     handle_multival_strategy: HANDLE_MULTIVAL_STRATEGY,
     multival_props_names: string[],
-    prefixes: Record<string, string>
+    prefixes: Record<string, string>,
+    infer_numeric_from_string: boolean = false
   ) {
     this.uri = uri;
     this.labels = new Set<string>();
@@ -42,6 +45,7 @@ export class Neo4jTriple {
     this.handle_multival_strategy = handle_multival_strategy;
     this.multival_props_names = multival_props_names;
     this.prefixes = prefixes;
+    this.infer_numeric_from_string = infer_numeric_from_string;
   }
 
   add_label(label: string): void {
@@ -203,8 +207,8 @@ export class Neo4jTriple {
         } else if (datatypeUri.includes('time')) {
           value = this.parseXsdTime(String(value));
         }
-      } else if (typeof value === 'string') {
-        // If no explicit datatype, try to infer from string value
+      } else if (this.infer_numeric_from_string && typeof value === 'string') {
+        // If no explicit datatype and inference is enabled, try to infer from string value
         const numValue = Number(value);
         if (
           !isNaN(numValue) &&
@@ -330,8 +334,8 @@ export class Neo4jTriple {
       }
     }
 
-    // If it's a string that looks like a number, try to parse it
-    if (typeof value === 'string') {
+    // If inference is enabled and it's a string that looks like a number, try to parse it
+    if (this.infer_numeric_from_string && typeof value === 'string') {
       const numValue = Number(value);
       if (!isNaN(numValue) && isFinite(numValue) && value.trim() !== '') {
         if (Number.isInteger(numValue) && !value.includes('.')) {

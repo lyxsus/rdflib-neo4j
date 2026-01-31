@@ -31,6 +31,7 @@ export class Neo4jStore {
   multival_props_predicates: string[];
   createdAtField: string;
   updatedAtField: string;
+  infer_numeric_from_string: boolean;
 
   /**
    * Initializes a Neo4jStore instance.
@@ -62,6 +63,7 @@ export class Neo4jStore {
     this.multival_props_predicates = config.multival_props_names;
     this.createdAtField = config.createdAtField;
     this.updatedAtField = config.updatedAtField;
+    this.infer_numeric_from_string = config.infer_numeric_from_string;
   }
 
   /**
@@ -363,7 +365,8 @@ export class Neo4jStore {
       this.handle_vocab_uri_strategy,
       this.handle_multival_strategy,
       this.multival_props_predicates,
-      reversedPrefixes
+      reversedPrefixes,
+      this.infer_numeric_from_string
     );
   }
 

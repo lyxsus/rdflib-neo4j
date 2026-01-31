@@ -2,16 +2,26 @@ export class RelationshipQueryComposer {
   rel_type: string;
   props: Set<string>;
   query_params: Array<{ from: string; to: string }>;
+  createdAtField: string;
+  updatedAtField: string;
 
   /**
    * Initializes a RelationshipQueryComposer object.
    *
    * @param rel_type - The type of the relationship.
+   * @param createdAtField - Property name for creation timestamp (default: "_createdAt").
+   * @param updatedAtField - Property name for last-update timestamp (default: "_updatedAt").
    */
-  constructor(rel_type: string) {
+  constructor(
+    rel_type: string,
+    createdAtField: string = '_createdAt',
+    updatedAtField: string = '_updatedAt'
+  ) {
     this.rel_type = rel_type;
     this.props = new Set<string>();
     this.query_params = [];
+    this.createdAtField = createdAtField;
+    this.updatedAtField = updatedAtField;
   }
 
   add_props(props: Set<string>): void {
@@ -49,8 +59,9 @@ export class RelationshipQueryComposer {
                  MERGE (to:Resource{ uri : param["to"] })
              `;
     q += ` MERGE (from)-[r:\`${this.rel_type}\`]->(to)`;
-    q += ` ON CREATE SET r.createdAt = datetime(), r.updatedAt = datetime()`;
-    q += ` ON MATCH SET r.updatedAt = datetime()`;
+    // Store timestamps as ISO-8601 strings (not Neo4j temporal types)
+    q += ` ON CREATE SET r.\`${this.createdAtField}\` = toString(datetime()), r.\`${this.updatedAtField}\` = toString(datetime())`;
+    q += ` ON MATCH SET r.\`${this.updatedAtField}\` = toString(datetime())`;
     if (this.props.size > 0) {
       throw new Error('Not implemented');
       // q += `SET ${', '.join([`r.\`${prop}\` = coalesce(param["${prop}"],null)` for prop in this.props])}`;

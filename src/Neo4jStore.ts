@@ -29,6 +29,8 @@ export class Neo4jStore {
   handle_vocab_uri_strategy: any;
   handle_multival_strategy: any;
   multival_props_predicates: string[];
+  createdAtField: string;
+  updatedAtField: string;
 
   /**
    * Initializes a Neo4jStore instance.
@@ -58,6 +60,8 @@ export class Neo4jStore {
     this.handle_vocab_uri_strategy = config.handle_vocab_uri_strategy;
     this.handle_multival_strategy = config.handle_multival_strategy;
     this.multival_props_predicates = config.multival_props_names;
+    this.createdAtField = config.createdAtField;
+    this.updatedAtField = config.updatedAtField;
   }
 
   /**
@@ -295,7 +299,9 @@ export class Neo4jStore {
         new NodeQueryComposer(
           new Set(this.current_subject.extract_labels()),
           this.handle_multival_strategy,
-          this.multival_props_predicates
+          this.multival_props_predicates,
+          this.createdAtField,
+          this.updatedAtField
         )
       );
     }
@@ -320,7 +326,10 @@ export class Neo4jStore {
     if (Object.keys(rel_types_and_relationships).length > 0) {
       for (const rel_type in rel_types_and_relationships) {
         if (!this.rel_buffer.has(rel_type)) {
-          this.rel_buffer.set(rel_type, new RelationshipQueryComposer(rel_type));
+          this.rel_buffer.set(
+            rel_type,
+            new RelationshipQueryComposer(rel_type, this.createdAtField, this.updatedAtField)
+          );
         }
         const composer = this.rel_buffer.get(rel_type)!;
         for (const to_node of rel_types_and_relationships[rel_type]) {

@@ -15,6 +15,8 @@ export class NodeQueryComposer {
   query_params: Record<string, any>[];
   handle_multival_strategy: HANDLE_MULTIVAL_STRATEGY;
   multival_props_predicates: string[];
+  createdAtField: string;
+  updatedAtField: string;
 
   /**
    * Initializes a NodeQueryComposer object.
@@ -22,11 +24,15 @@ export class NodeQueryComposer {
    * @param labels - The labels to assign to the nodes.
    * @param handle_multival_strategy - The strategy to handle multivalued properties.
    * @param multival_props_predicates - List of predicates to be treated as multivalued.
+   * @param createdAtField - Property name for creation timestamp (default: "_createdAt").
+   * @param updatedAtField - Property name for last-update timestamp (default: "_updatedAt").
    */
   constructor(
     labels: Set<string>,
     handle_multival_strategy: HANDLE_MULTIVAL_STRATEGY,
-    multival_props_predicates: string[]
+    multival_props_predicates: string[],
+    createdAtField: string = '_createdAt',
+    updatedAtField: string = '_updatedAt'
   ) {
     this.labels = labels;
     this.props = new Set<string>();
@@ -34,6 +40,8 @@ export class NodeQueryComposer {
     this.query_params = [];
     this.handle_multival_strategy = handle_multival_strategy;
     this.multival_props_predicates = multival_props_predicates;
+    this.createdAtField = createdAtField;
+    this.updatedAtField = updatedAtField;
   }
 
   add_props(props: Set<string>, multi: boolean = false): void {
@@ -70,8 +78,8 @@ export class NodeQueryComposer {
      * @returns The Neo4j query.
      */
     let q = ` UNWIND $params as param MERGE (n:Resource{ uri : param.uri }) `;
-    q += `ON CREATE SET n.createdAt = datetime(), n.updatedAt = datetime() `;
-    q += `ON MATCH SET n.updatedAt = datetime() `;
+    q += `ON CREATE SET n.\`${this.createdAtField}\` = datetime(), n.\`${this.updatedAtField}\` = datetime() `;
+    q += `ON MATCH SET n.\`${this.updatedAtField}\` = datetime() `;
     if (this.labels.size > 0) {
       const labelParts = Array.from(this.labels).map((label) => `n:\`${label}\``);
       q += `SET ${labelParts.join(', ')} `;

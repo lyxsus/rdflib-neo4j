@@ -28,6 +28,8 @@ export class Neo4jStoreConfig {
   handle_vocab_uri_strategy: HANDLE_VOCAB_URI_STRATEGY;
   handle_multival_strategy: HANDLE_MULTIVAL_STRATEGY;
   multival_props_names: string[];
+  createdAtField: string;
+  updatedAtField: string;
 
   /**
    * Configuration class for Neo4j RDF store.
@@ -40,6 +42,8 @@ export class Neo4jStoreConfig {
    * @param handle_vocab_uri_strategy - The strategy to handle vocabulary URIs (default: HANDLE_VOCAB_URI_STRATEGY.SHORTEN).
    * @param handle_multival_strategy - The strategy to handle multivalued properties (default: HANDLE_MULTIVAL_STRATEGY.OVERWRITE).
    * @param multival_props_names - A list of tuples containing the prefix and property names to be treated as multivalued in the form (prefix, property_name)
+   * @param createdAtField - Property name for creation timestamp (default: "_createdAt").
+   * @param updatedAtField - Property name for last-update timestamp (default: "_updatedAt").
    */
   constructor(
     auth_data: AuthData | null = null,
@@ -49,7 +53,9 @@ export class Neo4jStoreConfig {
     batch_size: number = 5000,
     handle_vocab_uri_strategy: HANDLE_VOCAB_URI_STRATEGY = HANDLE_VOCAB_URI_STRATEGY.SHORTEN,
     handle_multival_strategy: HANDLE_MULTIVAL_STRATEGY = HANDLE_MULTIVAL_STRATEGY.OVERWRITE,
-    multival_props_names: MultivalPropName[] = []
+    multival_props_names: MultivalPropName[] = [],
+    createdAtField: string = '_createdAt',
+    updatedAtField: string = '_updatedAt'
   ) {
     this.default_prefixes = { ...DEFAULT_PREFIXES };
     this.auth_data = auth_data;
@@ -66,6 +72,8 @@ export class Neo4jStoreConfig {
     for (const prop_name of multival_props_names) {
       this.set_multival_prop_name(prop_name.prefixName, prop_name.propName);
     }
+    this.createdAtField = createdAtField;
+    this.updatedAtField = updatedAtField;
   }
 
   set_handle_vocab_uri_strategy(val: HANDLE_VOCAB_URI_STRATEGY): void {

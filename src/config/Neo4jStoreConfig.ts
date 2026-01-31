@@ -30,6 +30,7 @@ export class Neo4jStoreConfig {
   multival_props_names: string[];
   createdAtField: string;
   updatedAtField: string;
+  infer_numeric_from_string: boolean;
 
   /**
    * Configuration class for Neo4j RDF store.
@@ -44,6 +45,7 @@ export class Neo4jStoreConfig {
    * @param multival_props_names - A list of tuples containing the prefix and property names to be treated as multivalued in the form (prefix, property_name)
    * @param createdAtField - Property name for creation timestamp (default: "_createdAt").
    * @param updatedAtField - Property name for last-update timestamp (default: "_updatedAt").
+   * @param infer_numeric_from_string - If true, plain string literals that look like numbers are converted to Neo4j numbers (default: false).
    */
   constructor(
     auth_data: AuthData | null = null,
@@ -55,7 +57,8 @@ export class Neo4jStoreConfig {
     handle_multival_strategy: HANDLE_MULTIVAL_STRATEGY = HANDLE_MULTIVAL_STRATEGY.OVERWRITE,
     multival_props_names: MultivalPropName[] = [],
     createdAtField: string = '_createdAt',
-    updatedAtField: string = '_updatedAt'
+    updatedAtField: string = '_updatedAt',
+    infer_numeric_from_string: boolean = false
   ) {
     this.default_prefixes = { ...DEFAULT_PREFIXES };
     this.auth_data = auth_data;
@@ -74,6 +77,16 @@ export class Neo4jStoreConfig {
     }
     this.createdAtField = createdAtField;
     this.updatedAtField = updatedAtField;
+    this.infer_numeric_from_string = infer_numeric_from_string;
+  }
+
+  set_infer_numeric_from_string(val: boolean): void {
+    /**
+     * Set whether to infer numeric types from plain string literals.
+     *
+     * @param val - If true, string literals that look like numbers (e.g. "42") are stored as Neo4j numbers.
+     */
+    this.infer_numeric_from_string = val;
   }
 
   set_handle_vocab_uri_strategy(val: HANDLE_VOCAB_URI_STRATEGY): void {

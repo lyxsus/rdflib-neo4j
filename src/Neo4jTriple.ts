@@ -1,5 +1,6 @@
 import DataFactory from '@rdfjs/data-model';
 import type { Literal, NamedNode, Quad, Term } from '@rdfjs/types';
+import { types as neo4jTypes } from 'neo4j-driver';
 import { HANDLE_MULTIVAL_STRATEGY, type HANDLE_VOCAB_URI_STRATEGY } from './config/const';
 import { handle_vocab_uri } from './utils';
 
@@ -195,6 +196,12 @@ export class Neo4jTriple {
           value = parseFloat(String(value));
         } else if (datatypeUri.includes('boolean')) {
           value = value === 'true' || value === true || value === 1;
+        } else if (datatypeUri.includes('dateTime')) {
+          value = this.parseXsdDateTime(String(value));
+        } else if (datatypeUri.includes('date')) {
+          value = this.parseXsdDate(String(value));
+        } else if (datatypeUri.includes('time')) {
+          value = this.parseXsdTime(String(value));
         }
       } else if (typeof value === 'string') {
         // If no explicit datatype, try to infer from string value
@@ -253,12 +260,52 @@ export class Neo4jTriple {
     }
   }
 
+  private parseXsdDate(value: string): InstanceType<typeof neo4jTypes.Date> | string {
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return value;
+    return new neo4jTypes.Date(
+      d.getUTCFullYear(),
+      d.getUTCMonth() + 1,
+      d.getUTCDate()
+    );
+  }
+
+  private parseXsdDateTime(value: string): InstanceType<typeof neo4jTypes.DateTime> | string {
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return value;
+    return neo4jTypes.DateTime.fromStandardDate(d);
+  }
+
+  private parseXsdTime(value: string): InstanceType<typeof neo4jTypes.LocalTime> | string {
+    const match = value.match(/^(\d{1,2}):(\d{2}):(\d{2})(?:\.(\d+))?/);
+    if (!match) return value;
+    const hour = parseInt(match[1], 10);
+    const minute = parseInt(match[2], 10);
+    const second = parseInt(match[3], 10);
+    let nanosecond = 0;
+    if (match[4]) {
+      const frac = match[4].padEnd(9, '0').slice(0, 9);
+      nanosecond = parseInt(frac, 10);
+    }
+    return new neo4jTypes.LocalTime(hour, minute, second, nanosecond);
+  }
+
   private literalToValue(literal: Literal): any {
     /**
      * Converts an RDF Literal to a JavaScript value.
-     * Handles type conversion for numeric and boolean types.
+     * Handles type conversion for numeric, boolean, and date/time types.
      */
     const value: any = literal.value;
+
+    if (
+      value &&
+      typeof value === 'object' &&
+      (value instanceof neo4jTypes.Date ||
+        value instanceof neo4jTypes.DateTime ||
+        value instanceof neo4jTypes.LocalTime)
+    ) {
+      return value;
+    }
 
     // Handle numeric types based on datatype
     if (literal.datatype) {
@@ -274,6 +321,12 @@ export class Neo4jTriple {
         return parseFloat(String(value));
       } else if (datatypeUri.includes('boolean')) {
         return value === 'true' || value === true || value === 1;
+      } else if (datatypeUri.includes('dateTime')) {
+        return this.parseXsdDateTime(String(value));
+      } else if (datatypeUri.includes('date')) {
+        return this.parseXsdDate(String(value));
+      } else if (datatypeUri.includes('time')) {
+        return this.parseXsdTime(String(value));
       }
     }
 

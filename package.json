@@ -1,6 +1,6 @@
 {
   "name": "rdflib-neo4j",
-  "version": "2.0.10",
+  "version": "2.0.11",
   "description": "RDFLib Store backed by neo4j, migrated to TypeScript",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

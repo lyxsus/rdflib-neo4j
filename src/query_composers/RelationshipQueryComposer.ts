@@ -59,9 +59,8 @@ export class RelationshipQueryComposer {
                  MERGE (to:Resource{ uri : param["to"] })
              `;
     q += ` MERGE (from)-[r:\`${this.rel_type}\`]->(to)`;
-    // Store timestamps as ISO-8601 strings (not Neo4j temporal types)
-    q += ` ON CREATE SET r.\`${this.createdAtField}\` = toString(datetime()), r.\`${this.updatedAtField}\` = toString(datetime())`;
-    q += ` ON MATCH SET r.\`${this.updatedAtField}\` = toString(datetime())`;
+    q += ` ON CREATE SET r.\`${this.createdAtField}\` = datetime(), r.\`${this.updatedAtField}\` = datetime()`;
+    q += ` ON MATCH SET r.\`${this.updatedAtField}\` = datetime()`;
     if (this.props.size > 0) {
       throw new Error('Not implemented');
       // q += `SET ${', '.join([`r.\`${prop}\` = coalesce(param["${prop}"],null)` for prop in this.props])}`;

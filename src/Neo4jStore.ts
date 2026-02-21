@@ -32,6 +32,7 @@ export class Neo4jStore {
   createdAtField: string;
   updatedAtField: string;
   infer_numeric_from_string: boolean;
+  query_timeout: number;
 
   /**
    * Initializes a Neo4jStore instance.
@@ -64,6 +65,7 @@ export class Neo4jStore {
     this.createdAtField = config.createdAtField;
     this.updatedAtField = config.updatedAtField;
     this.infer_numeric_from_string = config.infer_numeric_from_string;
+    this.query_timeout = config.query_timeout;
   }
 
   /**
@@ -264,12 +266,7 @@ export class Neo4jStore {
        `;
 
     const driver = this.__get_driver();
-    const queryConfig: any = {};
-    if (this.database) {
-      queryConfig.database = this.database;
-    }
-
-    const result = await driver.executeQuery(constraint_check, queryConfig);
+    const result = await driver.executeQuery(constraint_check, {}, this.__get_query_config());
     const constraint_found =
       result.records.length > 0 && result.records[0].get('constraint_found') === true;
 
@@ -279,7 +276,7 @@ export class Neo4jStore {
         const create_constraint = `
            CREATE CONSTRAINT n10s_unique_uri IF NOT EXISTS FOR (r:Resource) REQUIRE r.uri IS UNIQUE
            `;
-        await driver.executeQuery(create_constraint, queryConfig);
+        await driver.executeQuery(create_constraint, {}, this.__get_query_config());
       } catch (e: any) {
         // Silently fail - constraint creation may not be allowed
       }
@@ -472,16 +469,23 @@ export class Neo4jStore {
       // Use driver.executeQuery directly for reliable write operations
       // Use the database from auth_data if specified
       const driver = this.__get_driver();
-      // Merge database config into params object (params is typically { params: [...] })
-      const queryConfig: any = { ...params };
-      if (this.database) {
-        queryConfig.database = this.database;
-      }
-      await driver.executeQuery(query, queryConfig);
+      await driver.executeQuery(query, params, this.__get_query_config());
     } catch (e: any) {
       const error = handle_neo4j_driver_exception(e);
       console.error(error);
       throw error;
     }
+  }
+
+  private __get_query_config(): any {
+    const queryConfig: any = {
+      transactionConfig: {
+        timeout: this.query_timeout,
+      },
+    };
+    if (this.database) {
+      queryConfig.database = this.database;
+    }
+    return queryConfig;
   }
 }

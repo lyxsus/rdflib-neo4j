@@ -31,6 +31,7 @@ export class Neo4jStoreConfig {
   createdAtField: string;
   updatedAtField: string;
   infer_numeric_from_string: boolean;
+  query_timeout: number;
 
   /**
    * Configuration class for Neo4j RDF store.
@@ -46,6 +47,7 @@ export class Neo4jStoreConfig {
    * @param createdAtField - Property name for creation timestamp (default: "_createdAt").
    * @param updatedAtField - Property name for last-update timestamp (default: "_updatedAt").
    * @param infer_numeric_from_string - If true, plain string literals that look like numbers are converted to Neo4j numbers (default: false).
+   * @param query_timeout - Query timeout in milliseconds (default: 60000).
    */
   constructor(
     auth_data: AuthData | null = null,
@@ -58,7 +60,8 @@ export class Neo4jStoreConfig {
     multival_props_names: MultivalPropName[] = [],
     createdAtField: string = '_createdAt',
     updatedAtField: string = '_updatedAt',
-    infer_numeric_from_string: boolean = false
+    infer_numeric_from_string: boolean = false,
+    query_timeout: number = 60000
   ) {
     this.default_prefixes = { ...DEFAULT_PREFIXES };
     this.auth_data = auth_data;
@@ -78,6 +81,16 @@ export class Neo4jStoreConfig {
     this.createdAtField = createdAtField;
     this.updatedAtField = updatedAtField;
     this.infer_numeric_from_string = infer_numeric_from_string;
+    this.query_timeout = query_timeout;
+  }
+
+  set_query_timeout(timeout_ms: number): void {
+    /**
+     * Set the query timeout in milliseconds.
+     *
+     * @param timeout_ms - Query timeout value in milliseconds.
+     */
+    this.query_timeout = timeout_ms;
   }
 
   set_infer_numeric_from_string(val: boolean): void {
